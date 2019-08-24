@@ -8,10 +8,21 @@ spring:
   cloud:
     config:
     enabled: false
+  boot:
+    admin:
+      monitor:
+        #监控超时时间
+        connect-timeout: 30000
+        default-retries: 2
+     #probed-endpoints: env,metrics,dump,jolokia,info,configprops,trace,logfile,refresh,flyway,liquibase,heapdump,loggers,auditevents,hystrix.stream
+      # turbine监控配置
+      # clusters是指监控的集群
+      # location是turbine服务的ID，Jbone中使用jbone-sm-monitor作为turbine监控服务
+      turbine:
+        location: http://jbone-sm-monitor.majunwei.com:10003/
+      context-path: /admin
 
 server.port: 10002
-
-spring.boot.admin.context-path: /admin
 
 #注册中心
 eureka:
@@ -22,24 +33,26 @@ eureka:
       defaultZone: http://localhost:10001/eureka
   instance:
     prefer-ip-address: true
-    instance-id: ${spring.cloud.client.ipAddress}:${server.port}
+    instance-id: ${spring.cloud.client.ip-address}:${spring.application.name}:${server.port}
 
 
-management.security.enabled: false
+# 服务管理配置
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"        #暴漏的接口，"*"表示所有web监控接口
+        exclude:            #不暴漏的接口
+      base-path: /actuator  #监控根路径
+  endpoint:
+    health:
+      show-details: ALWAYS
 
-spring.boot.admin.routes.endpoints: env,metrics,dump,jolokia,info,configprops,trace,logfile,refresh,flyway,liquibase,heapdump,loggers,auditevents,hystrix.stream
-
-# turbine监控配置
-# clusters是指监控的集群
-# location是turbine服务的ID，Jbone中使用jbone-sm-monitor作为turbine监控服务
-spring.boot.admin.turbine:
-#  clusters: default
-  location: http://jbone-sm-monitor.majunwei.com:10004/
 
 #CAS服务地址
 jbone:
   cas:
-    casServerUrl: https://jbone-cas.majunwei.com:8443/cas
+    casServerUrl: http://jbone-cas.majunwei.com:30001/cas
     #当前系统地址
     currentServerUrlPrefix: http://jbone-sm-admin.majunwei.com:10002
     #过滤器地址,CAS认证通过后会回掉到jbone.cas.currentServerUrlPrefix/jbone.cas.casFilterUrlPattern
@@ -49,36 +62,12 @@ jbone:
     logoutUrl: /admin/logout
     #未授权的跳转路径，默认"/403"
     unauthorizedUrl: /403
-    clientSessionTimeout: 180000
+    clientSessionTimeout: 1800000
     #权限过滤规则
     filterChainDefinition:
-      /health: anon
-      /archaius: anon
-      /refresh: anon
-      /configprops: anon
-      /env/**: anon
-      /service-registry/**: anon
-      /auditevents: anon
-      /pause: anon
-      /dump: anon
-      /loggers/**: anon
-      /resume: anon
-      /metrics/**: anon
-      /channels: anon
-      /beans: anon
-      /mappings: anon
-      /autoconfig: anon
-      /trace: anon
-      /hystrix.stream/**: anon
-      /info: anon
-      /restart: anon
-      /heapdump: anon
-      /features: anon
-      /turbine.stream: anon
-      /admin/**: authc,roles[serverAdministrator]
-#      /**: anon
-#      /login: anon
-
+      "[/actuator/**]": anon  #不过滤监控端口，此处巨坑，升级到2。0之后必须用[]括起来，否则会规律所有符号.
+      "[/admin/**]": authc,roles[serverAdministrator]
+      "[/**]": anon
   #系统服务名称
   sys:
     serverName: jbone-sm-admin
@@ -99,7 +88,7 @@ info:
   code:
     git: https://github.com/417511458/jbone
     gitee: https://gitee.com/majunwei2017/jbone
-  domain: http://www.majunwei.com
+  domain: http://www.jbone.cn
 
 # 启用超时设置
 hystrix.command.default.execution.timeout.enabled: true

@@ -1,7 +1,6 @@
 package cn.jbone.common.rpc;
 
 import lombok.Data;
-import org.springframework.util.StringUtils;
 
 import java.io.Serializable;
 
@@ -87,4 +86,7 @@ public class Result<T> implements Serializable {
         return new Result();
     }
 
+    public static <T> Result<T> wrapSuccess(T a) {
+        return new Result<>(a);
+    }
 }

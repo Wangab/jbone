@@ -164,7 +164,9 @@ public class ShiroCasConfiguration {
     @Bean
     public SimpleCookie getCookie(){
         SimpleCookie cookie = new SimpleCookie();
-        cookie.setName("jbone.session.id");
+        cookie.setName("j_s_id");
+        cookie.setHttpOnly(false);
+        cookie.setPath("/");
         return cookie;
     }
 
@@ -175,8 +177,8 @@ public class ShiroCasConfiguration {
     }
 
     @Bean(name = "sessionFactory")
-    public SessionFactory getSessionFactory(){
-        return new JboneCasSessionFactory();
+    public SessionFactory getSessionFactory(JboneConfiguration jboneConfiguration){
+        return new JboneCasSessionFactory(jboneConfiguration);
     }
 
     @Bean
@@ -199,8 +201,15 @@ public class ShiroCasConfiguration {
         if(jboneConfiguration.getCas().getFilterChainDefinition() != null){
             filterChainDefinitionMap.putAll(jboneConfiguration.getCas().getFilterChainDefinition());
         }
+
+        //如果配置了/**，则优先自定义的过滤规则，如果没有配置，则全部由cas过滤
         String common = filterChainDefinitionMap.get("/**");
-        filterChainDefinitionMap.put("/**", "security" + (StringUtils.isNotBlank(common) ? ("," + common) : ""));
+        if(StringUtils.isBlank(common)){
+            filterChainDefinitionMap.put("/**", "security");
+        }else if(!common.equals("anon")){
+            filterChainDefinitionMap.put("/**", "security," + common);
+        }
+
         shiroFilterFactoryBean.setFilterChainDefinitionMap(filterChainDefinitionMap);
     }
 

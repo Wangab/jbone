@@ -2,9 +2,11 @@ package org.apereo.cas.pm;
 
 import cn.jbone.common.rpc.Result;
 import cn.jbone.sys.api.UserApi;
-import cn.jbone.sys.api.dto.request.ChangePasswordRequestDTO;
-import cn.jbone.sys.api.dto.response.UserBaseInfoResponseDTO;
-import cn.jbone.sys.api.dto.response.UserSecurityQuestionsResponseDTO;
+import cn.jbone.sys.common.UserRequestDO;
+import cn.jbone.sys.common.UserResponseDO;
+import cn.jbone.sys.common.dto.request.ChangePasswordRequestDTO;
+import cn.jbone.sys.common.dto.response.UserBaseInfoResponseDTO;
+import cn.jbone.sys.common.dto.response.UserSecurityQuestionsResponseDTO;
 import org.apereo.cas.CipherExecutor;
 import org.apereo.cas.authentication.Credential;
 import org.apereo.cas.configuration.model.support.pm.PasswordManagementProperties;
@@ -26,7 +28,7 @@ public class JbonePasswordManagementService extends BasePasswordManagementServic
     private UserApi userApi;
 
     public JbonePasswordManagementService(CipherExecutor<Serializable, String> cipherExecutor, String issuer, PasswordManagementProperties properties,UserApi userApi) {
-        super(cipherExecutor, issuer, properties);
+        super(properties,cipherExecutor, issuer);
         this.userApi = userApi;
     }
 
@@ -37,9 +39,9 @@ public class JbonePasswordManagementService extends BasePasswordManagementServic
      */
     @Override
     public String findEmail(String username) {
-        Result<UserBaseInfoResponseDTO> userModelResult = userApi.getUserByName(username);
-        if(userModelResult.isSuccess() && userModelResult.getData() != null){
-            return userModelResult.getData().getEmail();
+        Result<UserResponseDO> userResponseDOResult = userApi.commonRequest(UserRequestDO.buildSimple(username));
+        if(userResponseDOResult.isSuccess() && userResponseDOResult.getData() != null){
+            return userResponseDOResult.getData().getBaseInfo().getEmail();
         }
         return null;
     }

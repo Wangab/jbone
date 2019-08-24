@@ -1,12 +1,15 @@
 package cn.jbone.sys.api.feign;
 
+import cn.jbone.common.dataobject.PagedResponseDO;
 import cn.jbone.common.rpc.Result;
 import cn.jbone.sys.api.UserApi;
-import cn.jbone.sys.api.dto.request.ChangePasswordRequestDTO;
-import cn.jbone.sys.api.dto.request.GithubUserLoginRequestDTO;
-import cn.jbone.sys.api.dto.response.UserBaseInfoResponseDTO;
-import cn.jbone.sys.api.dto.response.UserInfoResponseDTO;
-import cn.jbone.sys.api.dto.response.UserSecurityQuestionsResponseDTO;
+import cn.jbone.sys.common.UserRequestDO;
+import cn.jbone.sys.common.UserResponseDO;
+import cn.jbone.sys.common.dto.request.ChangePasswordRequestDTO;
+import cn.jbone.sys.common.dto.request.GithubUserLoginRequestDTO;
+import cn.jbone.sys.common.dto.response.UserBaseInfoResponseDTO;
+import cn.jbone.sys.common.dto.response.UserInfoResponseDTO;
+import cn.jbone.sys.common.dto.response.UserSecurityQuestionsResponseDTO;
 import feign.hystrix.FallbackFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,24 +28,6 @@ public class UserApiFallbackFactory implements FallbackFactory<UserApi> {
 
         return new UserApi() {
             @Override
-            public Result<UserBaseInfoResponseDTO> getUserByName(String username) {
-                logger.error("rpc getUserBaseInfo broke",throwable);
-                return Result.wrapProtectedError();
-            }
-
-            @Override
-            public Result<UserInfoResponseDTO> getUserDetailByName(String username) {
-                logger.error("rpc getUserDetailByName broke",throwable);
-                return Result.wrapProtectedError();
-            }
-
-            @Override
-            public Result<UserInfoResponseDTO> getUserDetailByNameAndServerName(String username, String serverName) {
-                logger.error("rpc getUserDetailByNameAndServerName broke",throwable);
-                return Result.wrapProtectedError();
-            }
-
-            @Override
             public Result<List<UserSecurityQuestionsResponseDTO>> getUserSecurityQuestions(String username) {
                 logger.error("rpc getUserSecurityQuestions broke",throwable);
                 return Result.wrapProtectedError();
@@ -57,6 +42,18 @@ public class UserApiFallbackFactory implements FallbackFactory<UserApi> {
             @Override
             public Result<Void> thirdPartyUserLogin(GithubUserLoginRequestDTO githubUserLoginRequestDTO) {
                 logger.error("rpc thirdPartyUserLogin broke",throwable);
+                return Result.wrapProtectedError();
+            }
+
+            @Override
+            public Result<UserResponseDO> commonRequest(UserRequestDO userRequestDO) {
+                logger.error("rpc commonRequest broke",throwable);
+                return Result.wrapProtectedError();
+            }
+
+            @Override
+            public Result<PagedResponseDO<UserResponseDO>> commonSearch(UserRequestDO userRequestDO) {
+                logger.error("rpc commonSearch broke",throwable);
                 return Result.wrapProtectedError();
             }
         };

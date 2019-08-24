@@ -1,10 +1,10 @@
 package org.apereo.cas.web;
 
 import org.apereo.cas.CasEmbeddedContainerUtils;
-import org.springframework.boot.builder.SpringApplicationBuilder;
-import org.springframework.boot.web.support.SpringBootServletInitializer;
 
-import java.util.Map;
+import lombok.val;
+import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 
 /**
  * This is {@link CasWebApplicationServletInitializer}.
@@ -16,7 +16,8 @@ public class CasWebApplicationServletInitializer extends SpringBootServletInitia
 
     @Override
     protected SpringApplicationBuilder configure(final SpringApplicationBuilder builder) {
-        final Map<String, Object> properties = CasEmbeddedContainerUtils.getRuntimeProperties(Boolean.FALSE);
+        val properties = CasEmbeddedContainerUtils.getRuntimeProperties(Boolean.FALSE);
+        builder.application().setAllowBeanDefinitionOverriding(true);
         return builder
                 .sources(CasWebApplication.class)
                 .properties(properties)
